@@ -38,8 +38,8 @@ const Suscriptores = ({ suscriptores, firestore }) => {
 
   return (
     <div className="row">
-      <div className="col-md-12 mb-4">
-        <Link to={"/suscriptores/nuevo"} className="btn btn-primary mt-4">
+      <div className="col-md-12 my-4">
+        <Link to={"/suscriptores/nuevo"} className="btn btn-primary">
           <i className="fas fa-plus"></i>
           {""} Nuevo Suscriptor
         </Link>
