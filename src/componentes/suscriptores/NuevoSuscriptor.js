@@ -1,5 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import {firestoreConnect} from 'react-redux-firebase';
+import PropTypes from 'prop-types';
+
+import Swal from 'sweetalert2';
 
 class NuevoSuscriptor extends Component {
   state = {
@@ -8,6 +12,43 @@ class NuevoSuscriptor extends Component {
       carrera: '',
       codigo: ''
   };
+
+  //Extraer valores del input para colocarlo en el state
+  leerDato = e => {
+    this.setState({
+        [e.target.name] : e.target.value
+    })
+  }
+
+  //Agrega un nuevo suscriptor a la bd
+  agregarSuscriptor = e => {
+      e.preventDefault();
+
+      //Extraer valores del state
+        const nuevoSuscriptor = {...this.state}
+
+      //Extraer firestore de props
+      const {firestore, history} = this.props;
+
+      //Guardar en la bd
+      firestore.add({
+          collection : 'suscriptores',
+
+      },nuevoSuscriptor)
+        .then(()=>{
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Your work has been saved',
+                showConfirmButton: false,
+                timer: 1500
+              })
+              history.push('/suscriptores');
+        })
+        .catch(error => console.log(error))
+  }
+
+
   render() {
     return (
       <div className="row">
@@ -22,7 +63,9 @@ class NuevoSuscriptor extends Component {
           </h2>
           <div className="row justify-content-center">
               <div className="col-md-8 mt-8">
-                  <form>
+                  <form
+                    onSubmit={this.agregarSuscriptor}
+                  >
                       <div className="form-group">
                           <label>Nombre:</label>
                           <input 
@@ -88,4 +131,8 @@ class NuevoSuscriptor extends Component {
   }
 }
 
-export default NuevoSuscriptor;
+NuevoSuscriptor.propTypes = {
+    firestore : PropTypes.object.isRequired
+}
+
+export default firestoreConnect()(NuevoSuscriptor);
