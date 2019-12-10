@@ -58,7 +58,7 @@ export default compose(
       doc: props.match.params.id
     }
   ]),
-  connect(({ firestore: { ordered } }, props) => ({
+  connect(({ firestore: { ordered } }, props) => ({ //{ firestore: { ordered } } destructuring
     suscriptor: ordered.suscriptor && ordered.suscriptor[0]
   }))
 )(MostrarSuscriptor);
