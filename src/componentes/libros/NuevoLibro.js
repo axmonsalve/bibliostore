@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { firestoreConnect } from "react-redux-firebase";
+import Swal from 'sweetalert2';
+import PropTypes from "prop-types";
 
 class NuevoLibro extends Component {
     state = { 
@@ -9,6 +12,40 @@ class NuevoLibro extends Component {
         existencia : ''
      }
 
+    //Almacena lo que el usuario escribe
+     leerDato = e => {
+         this.setState({
+             [e.target.name] : e.target.value
+         })
+     }
+
+     //guarda el libro en la BD
+     agregarLibro = e => {
+         e.preventDefault();
+
+         //Tomar un a copia del state
+        const nuevoLibro = this.state;
+
+        //Agregar un arreglo de prestados
+        nuevoLibro.prestados = [];
+
+         //Extraer firestore con sus metodos
+         const {firestore, history} = this.props
+
+         //Añadirlo a la BD y redireccionar
+         firestore.add({collection: 'libros'}, nuevoLibro)
+            .then(()=> {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "Your work has been saved",
+                    showConfirmButton: false,
+                    timer: 1500
+                  });
+                  history.push("/");
+                })
+                .catch(error => console.log(error));
+     }
 
 
     render() { 
@@ -34,6 +71,7 @@ class NuevoLibro extends Component {
                     <div className="row justify-content-center">
                         <div className="col-md-8 mt-5">
                             <form
+                            onSubmit={this.agregarLibro}
                             >
                                 <div className="form-group">
                                     <label>Titulo:</label>
@@ -97,4 +135,8 @@ class NuevoLibro extends Component {
     }
 }
  
-export default NuevoLibro;
+NuevoLibro.propTypes = {
+    firestore: PropTypes.object.isRequired
+  };
+  
+  export default firestoreConnect()(NuevoLibro);
