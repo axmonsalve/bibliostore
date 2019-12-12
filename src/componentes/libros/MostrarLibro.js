@@ -17,7 +17,7 @@ class MostrarLibro extends Component {
     //Boton para solicitar un libro
     let botonPrestamo;
     if(libro.existencia -libro.prestados.length > 0){
-        botonPrestamo = <Link to={`/libros/prestamo/$libro.id`} className="btn btn-success my-3">Solicitar prestamo</Link>
+        botonPrestamo = <Link to={`/libros/prestamo/${libro.id}`} className="btn btn-success my-3">Solicitar prestamo</Link>
     }else{
         botonPrestamo = null;
     }
