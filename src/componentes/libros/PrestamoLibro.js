@@ -8,7 +8,55 @@ import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 
 class PrestamoLibro extends Component {
-  state = {};
+  state = {
+    noResultados: false,
+    busqueda: '',
+    resultado: {}
+  };
+
+  //Buscar alumno por código
+  buscarAlumno = e => {
+    e.preventDefault();
+
+    //obtener el valor a buscar
+    const {busqueda} = this.state;
+
+    //Extraer firestore
+    const {firestore} = this.props;
+
+    //Hacer la consulta mediante un llamado del usuario
+    const coleccion = firestore.collection('suscriptores');
+    const consulta = coleccion.where("codigo", "==", busqueda).get();
+
+    //Leer los resultados
+    consulta.then(resultado => {
+      if(resultado.empty){
+        //No hay resultados
+        this.setState({
+          noResultados: true,
+          resultado:{}
+        })
+      }else{
+        //Si hay resultados
+        const datos = resultado.docs[0];
+         //Este resultado (datos) lo coloco en el state
+         this.setState({
+            resultado: datos.data(),
+            noResultados: false
+         })
+      }
+    })
+  }
+
+
+  //Almacenar el código en el state
+  leerDato = e => {
+    this.setState({
+      [e.target.name] : e.target.value
+    })
+  }
+
+
   render() {
     //Extraer el libro
     const { libro } = this.props;
@@ -28,7 +76,9 @@ class PrestamoLibro extends Component {
           </h2>
           <div className="row justify-content-center">
             <div className="col-md-8">
-              <form>
+              <form
+                onSubmit={this.buscarAlumno}
+              >
                 <legend className="color-primary text-center mt-5">
                   Busca el suscriptor por código
                 </legend>
