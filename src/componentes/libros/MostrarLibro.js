@@ -13,13 +13,20 @@ class MostrarLibro extends Component {
     const { libro } = this.props;
 
     if (!libro) return <Spinner />;
-    
+
     //Boton para solicitar un libro
     let botonPrestamo;
-    if(libro.existencia -libro.prestados.length > 0){
-        botonPrestamo = <Link to={`/libros/prestamo/${libro.id}`} className="btn btn-success my-3">Solicitar prestamo</Link>
-    }else{
-        botonPrestamo = null;
+    if (libro.existencia - libro.prestados.length > 0) {
+      botonPrestamo = (
+        <Link
+          to={`/libros/prestamo/${libro.id}`}
+          className="btn btn-primary my-3"
+        >
+          Solicitar prestamo
+        </Link>
+      );
+    } else {
+      botonPrestamo = null;
     }
 
     return (
@@ -57,6 +64,43 @@ class MostrarLibro extends Component {
             {libro.existencia - libro.prestados.length}
           </p>
           {botonPrestamo}
+
+          {/* Muestra las personas que tienen los libros */}
+          <h3 className="my-3">
+            Personas que tienen el libro prestado actualmente
+          </h3>
+          {libro.prestados.map(prestado => (
+            
+            <div key={prestado.codigo} className="card my-2">
+              <h4 className="card-header bg-primary text-white">
+                <i className="fas fa-user-check"></i> {prestado.nombre}{" "}
+                {prestado.apellido}
+              </h4>
+              <div className="card-body">
+                <p>
+                  <span className="font-weight-bold">Código:</span>{" "}
+                  {prestado.codigo}
+                </p>
+                <p>
+                  <span className="font-weight-bold">Carrera:</span>{" "}
+                  {prestado.carrera}
+                </p>
+                <p>
+                  <span className="font-weight-bold">Fecha de solicitud:</span>{" "}
+                  {prestado.fecha_solicitud}
+                </p>
+              </div>
+              <div className="card-footer bg-primary">
+                <button
+                  type="button"
+                  className="btn btn-success font-weight-bold"
+                  onClick={() => this.devolverLibro(prestado.codigo)}
+                >
+                  Realizar devolución
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
