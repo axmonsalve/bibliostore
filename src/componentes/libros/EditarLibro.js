@@ -40,7 +40,7 @@ class EditarLibro extends Component {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `${libro.titulo} has been saved`,
+          title: `${libro.titulo} guardado!`,
           showConfirmButton: false,
           timer: 1500
         }),
