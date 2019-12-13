@@ -135,6 +135,18 @@ class PrestamoLibro extends Component {
       btnSolicitar = null;
     }
 
+    //Mostrar mensaje de error
+    //Extraemos no resultados del state
+    const {noResultados} = this.state;
+
+    let mensajeResultado = '';
+    if(noResultados){
+      mensajeResultado = <div className="alert alert-danger text-center font-weight-bold">No hay resultados para ese código </div>
+    }else{
+      mensajeResultado = null;
+    }
+
+
     return (
       <div className="row">
         <div className="col-12 my-4">
@@ -178,6 +190,9 @@ class PrestamoLibro extends Component {
               {/* Muestra la ficha del alumno y el boton para solicitar el prestamo */}
               {fichaAlumno}
               {btnSolicitar}
+
+              {/* Muestra un mensaje de no resultados */}
+              {mensajeResultado}
             </div>
           </div>
         </div>
