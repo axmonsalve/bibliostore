@@ -8,8 +8,8 @@ import PropTypes from "prop-types";
 import FichaAlumno from "../suscriptores/FichaSuscriptor";
 import Swal from "sweetalert2";
 
-//REDUX ACTIONS 
-import {buscarUsuario} from '../../actions/buscarUsuarioActions';
+//REDUX ACTIONS
+import { buscarUsuario } from "../../actions/buscarUsuarioActions";
 
 class PrestamoLibro extends Component {
   state = {
@@ -45,7 +45,7 @@ class PrestamoLibro extends Component {
         });
       } else {
         //Si hay resultados
-        
+
         //Colocar el resultado en el satte de redux
         const datos = resultado.docs[0];
         buscarUsuario(datos.data());
@@ -60,36 +60,47 @@ class PrestamoLibro extends Component {
 
   //Almacena los datos del alumno para solicitar el libro
   solicitarPrestamo = () => {
-    const suscriptor = this.state.resultado;
+    const { usuario } = this.props;
 
-    //Fecha de alta 
-    suscriptor.fecha_solicitud = new Date().toLocaleDateString();
+    //Fecha de alta
+    usuario.fecha_solicitud = new Date().toLocaleDateString();
 
-    //Obtener el libro
-    const {libro} = this.props;
+    //NO SE PUEDEN MUTAR LOS PROPS, TOMAR UNA COPIA Y CREAR UN ARREGLO NUEVO
+    let prestados = [];
+    prestados = [...this.props.libro.prestados, usuario];
 
-    //Agregar el suscriptor al libro
-    libro.prestados.push(suscriptor);
+    //Copiar el objeto y agragar los prestados
+    const libro = { ...this.props.libro };
+
+    //Eliminar los prestados anteriores del objeto
+    delete libro.prestados;
+
+    //Asignar los prestados
+    libro.prestados = prestados;
 
     //Obtener firestore y history de props
-    const {firestore, history} = this.props;
+    const { firestore, history } = this.props;
 
     //Almacenar en la BD
-    firestore.update({
-      collection: 'libros',
-      doc: libro.id
-    }, libro)
+    firestore
+      .update(
+        {
+          collection: "libros",
+          doc: libro.id
+        },
+        libro
+      )
       .then(
         Swal.fire({
-          position: 'top-end',
-          icon: 'success',
+          position: "top-end",
+          icon: "success",
           title: `Libro solicitado correctamente`,
           showConfirmButton: false,
           timer: 1500
         }),
-        history.push('/')
-      )
-  }
+        history.push("/")
+      );
+  };
 
   //Almacenar el código en el state
   leerDato = e => {
@@ -162,7 +173,6 @@ class PrestamoLibro extends Component {
                       className="btn btn-primary btn-block"
                     />
                   </div>
-
                 </div>
               </form>
               {/* Muestra la ficha del alumno y el boton para solicitar el prestamo */}
@@ -190,9 +200,12 @@ export default compose(
       doc: props.match.params.id
     }
   ]),
-  connect(({ firestore: { ordered }, usuario}, props) => ({
-    //{ firestore: { ordered } } destructuring
-    libro: ordered.libro && ordered.libro[0],
-    usuario: usuario
-  }), {buscarUsuario})
+  connect(
+    ({ firestore: { ordered }, usuario }, props) => ({
+      //{ firestore: { ordered } } destructuring
+      libro: ordered.libro && ordered.libro[0],
+      usuario: usuario
+    }),
+    { buscarUsuario }
+  )
 )(PrestamoLibro);
