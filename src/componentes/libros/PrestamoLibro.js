@@ -8,11 +8,13 @@ import PropTypes from "prop-types";
 import FichaAlumno from "../suscriptores/FichaSuscriptor";
 import Swal from "sweetalert2";
 
+//REDUX ACTIONS 
+import {buscarUsuario} from '../../actions/buscarUsuarioActions';
+
 class PrestamoLibro extends Component {
   state = {
     noResultados: false,
-    busqueda: "",
-    resultado: {}
+    busqueda: ""
   };
 
   //Buscar alumno por código
@@ -23,7 +25,7 @@ class PrestamoLibro extends Component {
     const { busqueda } = this.state;
 
     //Extraer firestore
-    const { firestore } = this.props;
+    const { firestore, buscarUsuario } = this.props;
 
     //Hacer la consulta mediante un llamado del usuario
     const coleccion = firestore.collection("suscriptores");
@@ -33,16 +35,23 @@ class PrestamoLibro extends Component {
     consulta.then(resultado => {
       if (resultado.empty) {
         //No hay resultados
+
+        //Almacenar en redux un objeto vacio
+        buscarUsuario({});
+
+        //actualiza el state en base a si hay resultados
         this.setState({
-          noResultados: true,
-          resultado: {}
+          noResultados: true
         });
       } else {
         //Si hay resultados
+        
+        //Colocar el resultado en el satte de redux
         const datos = resultado.docs[0];
-        //Este resultado (datos) lo coloco en el state
+        buscarUsuario(datos.data());
+
+        //actualiza el state en base a si hay resultados
         this.setState({
-          resultado: datos.data(),
           noResultados: false
         });
       }
@@ -96,11 +105,11 @@ class PrestamoLibro extends Component {
     if (!libro) return <Spinner />;
 
     //Extremos los datos del alumno que está en el state
-    const { noResultados, resultado } = this.state;
+    const { usuario } = this.props;
 
     let fichaAlumno, btnSolicitar;
-    if (resultado.nombre) {
-      fichaAlumno = <FichaAlumno alumno={resultado} />;
+    if (usuario.nombre) {
+      fichaAlumno = <FichaAlumno alumno={usuario} />;
       btnSolicitar = (
         <button
           type="button"
@@ -181,8 +190,9 @@ export default compose(
       doc: props.match.params.id
     }
   ]),
-  connect(({ firestore: { ordered } }, props) => ({
+  connect(({ firestore: { ordered }, usuario}, props) => ({
     //{ firestore: { ordered } } destructuring
-    libro: ordered.libro && ordered.libro[0]
-  }))
+    libro: ordered.libro && ordered.libro[0],
+    usuario: usuario
+  }), {buscarUsuario})
 )(PrestamoLibro);
