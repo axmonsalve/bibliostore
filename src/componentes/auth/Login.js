@@ -1,10 +1,38 @@
 import React, { Component } from "react";
+import {firebaseConnect} from 'react-redux-firebase';
 
 class Login extends Component {
   state = {
     email: "",
     password: ""
   };
+
+  //Iniciar sesion en firebase
+  iniciarSesion = e => {
+    e.preventDefault();
+    
+    //Extraer firebase
+    const {firebase} = this.props;
+
+    //Extraer el state
+    const {email, password} = this.state;
+
+    //Autenticar al usuario
+    firebase.login({
+      email,
+      password
+    })
+      .then(resultado => console.log("Iniciaste sesion"))
+      .catch(error => console.log("Hubo un error"))
+  }
+
+
+  leerDatos = e => {
+    this.setState({
+      [e.target.name] : e.target.value
+    })
+  }
+
   render() {
     return (
       <div className="row justify-content-center">
@@ -14,11 +42,13 @@ class Login extends Component {
               <h2 className="text-center py-4">
                 <i className="fas fa-lock"></i> Iniciar Sesión
               </h2>
-              <form>
+              <form
+                onSubmit={this.iniciarSesion}
+              >
                 <div className="form-group">
                   <label>Email:</label>
                   <input
-                    type="text"
+                    type="email"
                     className="form-control"
                     name="email"
                     required
@@ -52,4 +82,4 @@ class Login extends Component {
   }
 }
 
-export default Login;
+export default firebaseConnect()(Login);
